@@ -6,6 +6,7 @@ import com.zhuxiangcun.budgetapp.service.TransactionService;
 import com.zhuxiangcun.budgetapp.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.time.YearMonth;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -39,8 +41,15 @@ public class TransactionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TransactionResponse>> list(HttpServletRequest request) {
+    public ResponseEntity<List<TransactionResponse>> list(
+            @RequestParam(required = false) String month,
+            HttpServletRequest request) {
         Long userId = extractUserId(request);
+
+        if (month != null && !month.isBlank()) {
+            return ResponseEntity.ok(transactionService.getByMonth(userId, YearMonth.parse(month)));
+        }
+
         return ResponseEntity.ok(transactionService.list(userId));
     }
 

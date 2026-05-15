@@ -4,6 +4,8 @@ import com.zhuxiangcun.budgetapp.dto.TransactionRequest;
 import com.zhuxiangcun.budgetapp.dto.TransactionResponse;
 import com.zhuxiangcun.budgetapp.model.Transaction;
 import com.zhuxiangcun.budgetapp.repository.TransactionRepository;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +28,16 @@ public class TransactionService {
 
     public List<TransactionResponse> list(Long userId) {
         return transactionRepository.findByUserIdOrderBySpentAtDesc(userId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public List<TransactionResponse> getByMonth(Long userId, YearMonth yearMonth) {
+        LocalDateTime start = yearMonth.atDay(1).atStartOfDay();
+        LocalDateTime end = yearMonth.plusMonths(1).atDay(1).atStartOfDay();
+
+        return transactionRepository.findByUserIdAndSpentAtBetweenOrderBySpentAtDesc(userId, start, end)
                 .stream()
                 .map(this::toResponse)
                 .toList();
