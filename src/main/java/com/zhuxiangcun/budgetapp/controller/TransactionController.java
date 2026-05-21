@@ -43,8 +43,13 @@ public class TransactionController {
     @GetMapping
     public ResponseEntity<List<TransactionResponse>> list(
             @RequestParam(required = false) String month,
+            @RequestParam(required = false) String yearMonth,
             HttpServletRequest request) {
         Long userId = extractUserId(request);
+
+        if (yearMonth != null && !yearMonth.isBlank()) {
+            return ResponseEntity.ok(transactionService.getByMonth(userId, YearMonth.parse(yearMonth)));
+        }
 
         if (month != null && !month.isBlank()) {
             return ResponseEntity.ok(transactionService.getByMonth(userId, YearMonth.parse(month)));
