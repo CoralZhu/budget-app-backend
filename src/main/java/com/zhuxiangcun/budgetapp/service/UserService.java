@@ -55,7 +55,7 @@ public class UserService {
     }
 
     public LoginResponse login(LoginRequest request) {
-        String identifier = request.getAccount();
+        String identifier = request.getAccount().trim();
         User user = userRepository.findByEmail(identifier)
                 .or(() -> userRepository.findByUsername(identifier))
                 .orElseThrow(() -> new RuntimeException("邮箱/昵称或密码错误"));

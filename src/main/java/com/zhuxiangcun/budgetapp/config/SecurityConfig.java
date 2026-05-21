@@ -25,6 +25,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/transactions/**").permitAll()
                         .requestMatchers("/api/budgets/**").permitAll()
                         .requestMatchers("/api/categories/**").permitAll()
+                        .requestMatchers("/api/ocr/**").permitAll()
                         .anyRequest().permitAll());
 
         return http.build();
@@ -41,9 +42,11 @@ public class SecurityConfig {
         configuration.setAllowedOriginPatterns(List.of(
                 "http://localhost:*",
                 "http://127.0.0.1:*",
-                "http://[::1]:*"
+                "http://[::1]:*",
+                "https://budget-app-frontend-sigma.vercel.app",
+                "https://*.vercel.app"
         ));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("Authorization"));
         configuration.setAllowCredentials(true);
