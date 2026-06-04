@@ -7,6 +7,7 @@ import com.zhuxiangcun.budgetapp.dto.UserResponse;
 import com.zhuxiangcun.budgetapp.model.User;
 import com.zhuxiangcun.budgetapp.repository.UserRepository;
 import com.zhuxiangcun.budgetapp.util.JwtUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,9 @@ public class UserService {
 
     private final VerificationCodeService verificationCodeService;
 
+    @Value("${app.skip-email-verification:false}")
+    private boolean skipEmailVerification;
+
     public UserService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
@@ -33,8 +37,10 @@ public class UserService {
     }
 
     public UserResponse register(RegisterRequest request) {
-        if (!verificationCodeService.verifyCode(request.getEmail(), request.getCode())) {
-            throw new RuntimeException("验证码错误或已过期");
+        if (!skipEmailVerification) {
+            if (!verificationCodeService.verifyCode(request.getEmail(), request.getCode())) {
+                throw new RuntimeException("验证码错误或已过期");
+            }
         }
 
         if (userRepository.existsByEmail(request.getEmail())) {
