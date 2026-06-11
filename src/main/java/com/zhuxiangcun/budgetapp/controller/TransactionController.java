@@ -8,7 +8,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.time.YearMonth;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -77,10 +79,14 @@ public class TransactionController {
     private Long extractUserId(HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
         if (authorization == null || !authorization.startsWith("Bearer ")) {
-            throw new RuntimeException("未提供有效Token");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "未提供有效Token");
         }
 
         String token = authorization.substring(7);
-        return jwtUtil.getUserIdFromToken(token);
+        try {
+            return jwtUtil.getUserIdFromToken(token);
+        } catch (RuntimeException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token无效或已过期");
+        }
     }
 }

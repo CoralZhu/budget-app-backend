@@ -8,6 +8,7 @@ import com.zhuxiangcun.budgetapp.service.WechatBillImportService.InvalidWechatBi
 import com.zhuxiangcun.budgetapp.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Locale;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/import")
@@ -109,10 +111,14 @@ public class ImportController {
     private Long extractUserId(HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
         if (authorization == null || !authorization.startsWith("Bearer ")) {
-            throw new RuntimeException("未提供有效Token");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "未提供有效Token");
         }
 
         String token = authorization.substring(7);
-        return jwtUtil.getUserIdFromToken(token);
+        try {
+            return jwtUtil.getUserIdFromToken(token);
+        } catch (RuntimeException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token无效或已过期");
+        }
     }
 }

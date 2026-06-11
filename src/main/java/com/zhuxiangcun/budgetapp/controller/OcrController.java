@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @RestController
@@ -79,10 +80,14 @@ public class OcrController {
     private Long extractUserId(HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
         if (authorization == null || !authorization.startsWith("Bearer ")) {
-            throw new RuntimeException("未提供有效Token");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "未提供有效Token");
         }
 
         String token = authorization.substring(7);
-        return jwtUtil.getUserIdFromToken(token);
+        try {
+            return jwtUtil.getUserIdFromToken(token);
+        } catch (RuntimeException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token无效或已过期");
+        }
     }
 }

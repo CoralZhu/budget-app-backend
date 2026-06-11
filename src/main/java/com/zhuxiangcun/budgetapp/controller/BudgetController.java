@@ -7,6 +7,7 @@ import com.zhuxiangcun.budgetapp.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/budgets")
@@ -56,10 +58,14 @@ public class BudgetController {
     private Long extractUserId(HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
         if (authorization == null || !authorization.startsWith("Bearer ")) {
-            throw new RuntimeException("未提供有效Token");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "未提供有效Token");
         }
 
         String token = authorization.substring(7);
-        return jwtUtil.getUserIdFromToken(token);
+        try {
+            return jwtUtil.getUserIdFromToken(token);
+        } catch (RuntimeException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token无效或已过期");
+        }
     }
 }
