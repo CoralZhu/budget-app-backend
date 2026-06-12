@@ -76,6 +76,17 @@ public class UserService {
         return response;
     }
 
+    public LoginResponse demoLogin() {
+        User user = userRepository.findById(1L)
+                .or(() -> userRepository.findByEmail("demo@example.com"))
+                .orElseThrow(() -> new RuntimeException("演示账号不存在"));
+
+        LoginResponse response = new LoginResponse();
+        response.setToken(jwtUtil.generateToken(user.getId(), user.getEmail()));
+        response.setUser(toUserResponse(user));
+        return response;
+    }
+
     private UserResponse toUserResponse(User user) {
         UserResponse response = new UserResponse();
         response.setId(user.getId());
