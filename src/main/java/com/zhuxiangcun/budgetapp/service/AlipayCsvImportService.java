@@ -139,8 +139,7 @@ public class AlipayCsvImportService {
 
             BigDecimal amount = parseAmount(columns[directionIndex + 1]);
             if (amount.signum() <= 0) {
-                fail(rowNumber, "金额必须大于0: '" + clean(columns[directionIndex + 1]) + "'",
-                        counters, failedSamples);
+                counters.skippedNotExpense++;
                 return;
             }
 

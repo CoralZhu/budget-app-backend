@@ -239,8 +239,7 @@ public class WechatBillImportService {
 
             BigDecimal amount = parseAmount(columns[AMOUNT_INDEX]);
             if (amount.signum() <= 0) {
-                fail(rowNumber, "金额必须大于0: '" + clean(columns[AMOUNT_INDEX]) + "'",
-                        counters, failedSamples);
+                counters.skippedNotExpense++;
                 return;
             }
 
